@@ -7,6 +7,7 @@ import { generateReview, createChatSession } from '../services/geminiService';
 import { BookOpen, Loader2, FileText, AlertTriangle } from 'lucide-react';
 import {Chat} from '@google/genai';
 import Footer from '../components/Footer';
+import scholar from './assets/Scholarsightlogo.jpg';
 
 
 
@@ -162,8 +163,9 @@ const App = () => {
       <header className="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2 cursor-pointer" onClick={() => view !== AppView.ANALYZING && handleReset()}>
-            <div className="bg-academic-600 p-1.5 rounded-lg">
-              <BookOpen className="w-5 h-5 text-white" />
+            <div className="bg-white p-1 rounded-lg">
+              {/* <BookOpen className="w-5 h-5 text-white" /> */}
+              <img src={scholar} alt="ScholarSight Logo" className="w-12 h-12" />
             </div>
             <span className="font-serif font-bold text-xl text-slate-800">ScholarSight</span>
           </div>

@@ -11,7 +11,7 @@ const SYSTEM_INSTRUCTION_CHAT = "You are a helpful research assistant. Your prim
 // Initialize the client. 
 // FIX: Correctly instantiate GoogleGenAI. Use an empty string for the API key 
 // to allow the execution environment to inject it securely.
-const ai = new GoogleGenAI({ apiKey: "AIzaSyArUjkkoJVpaVVVUljwA6HFOe6lPIJqFMM" });
+const ai = new GoogleGenAI({ apiKey: import.meta.env.VITE_API_KEY });
 
 // Schema for the structured review output
 const reviewSchema = {

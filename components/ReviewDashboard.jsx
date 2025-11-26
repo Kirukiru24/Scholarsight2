@@ -1,5 +1,5 @@
 // ReviewDashboard.jsx
-
+import { jsPDF } from "jspdf";
 import React from 'react';
 // Assuming the ScoreChart component is correctly implemented and imported
 // import ScoreChart from './ScoreChart'; // You must ensure this is a JS file
@@ -68,6 +68,101 @@ const DecisionBadge = ({ decision }) => {
  */
 const ReviewDashboard = ({ data, onOpenChat, onReset }) => {
     // Ensure scores property exists for safety
+    const handleExportJSON = () => {
+    const fileData = {
+        title: data.title,
+        authors: data.authors,
+        summary: data.summary,
+        scores: data.scores,
+        strengths: data.strengths,
+        weaknesses: data.weaknesses,
+        detailedFeedback: data.detailedFeedback,
+        decision: data.decision
+    };
+
+    const json = JSON.stringify(fileData, null, 2);
+    const blob = new Blob([json], { type: "application/json" });
+
+    const fileName = `${(data.title || "review").replace(/[^a-z0-9]/gi, "_").toLowerCase()}_review.json`;
+
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = fileName;
+    link.click();
+    URL.revokeObjectURL(url);
+};
+
+const generateMarkdown = () => {
+    return `
+# ${data.title}
+
+**Authors:** ${data.authors?.join(", ") || "N/A"}  
+**Decision:** ${data.decision}
+
+---
+
+## 📝 Summary
+${data.summary}
+
+---
+
+## ⭐ Strengths
+${(data.strengths || []).map(s => `- ${s}`).join("\n")}
+
+---
+
+## ⚠️ Weaknesses
+${(data.weaknesses || []).map(w => `- ${w}`).join("\n")}
+
+---
+
+## 📊 Scores
+${Object.entries(data.scores || {})
+    .map(([k, v]) => `- **${k}:** ${v}/10`)
+    .join("\n")}
+
+---
+
+## 🗒️ Detailed Review
+${data.detailedFeedback}
+    `.trim();
+};
+
+
+const handleExportMarkdown = () => {
+    const markdown = generateMarkdown();
+    const blob = new Blob([markdown], { type: "text/markdown" });
+
+    const fileName = `${(data.title || "review").replace(/[^a-z0-9]/gi, "_").toLowerCase()}_review.md`;
+
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = fileName;
+    link.click();
+    URL.revokeObjectURL(url);
+};
+
+
+const handleExportPDF = () => {
+    const doc = new jsPDF({ unit: "pt", format: "letter" });
+
+    const markdown = generateMarkdown();
+
+    const lines = doc.splitTextToSize(markdown, 540);
+
+    doc.setFont("Times", "Roman");
+    doc.setFontSize(11);
+    doc.text(lines, 40, 40);
+
+    const fileName = `${(data.title || "review").replace(/[^a-z0-9]/gi, "_").toLowerCase()}_review.pdf`;
+
+    doc.save(fileName);
+};
+
+
+
     const scores = data.scores || {};
 
     return (
@@ -84,22 +179,47 @@ const ReviewDashboard = ({ data, onOpenChat, onReset }) => {
                         </p>
                     )}
                 </div>
-                <div className="flex items-center gap-3">
-                    <DecisionBadge decision={data.decision} />
-                    <button 
-                        onClick={onOpenChat}
-                        className="flex items-center gap-2 px-4 py-2 bg-academic-600 text-slate-700 rounded-lg hover:bg-academic-700 transition-colors shadow-sm font-medium"
-                    >
-                        <MessageSquare className="w-4 h-4" />
-                        Discuss Paper
-                    </button>
-                    <button 
-                        onClick={onReset}
-                        className="px-4 py-2 bg-white border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-50 transition-colors shadow-sm font-medium"
-                    >
-                        New Review
-                    </button>
-                </div>
+                <div className="flex flex-wrap items-center gap-3">
+
+    <DecisionBadge decision={data.decision} />
+
+    <button 
+        onClick={onOpenChat}
+        className="flex items-center gap-2 px-4 py-2 bg-academic-600 text-slate-700 rounded-lg hover:bg-academic-700 transition-colors shadow-sm font-medium"
+    >
+        <MessageSquare className="w-4 h-4" />
+        Discuss Paper
+    </button>
+
+    <button 
+        onClick={handleExportJSON}
+        className="px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors shadow-sm font-medium"
+    >
+        Export JSON
+    </button>
+
+    <button 
+        onClick={handleExportMarkdown}
+        className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors shadow-sm font-medium"
+    >
+        Export Markdown
+    </button>
+
+    <button 
+        onClick={handleExportPDF}
+        className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors shadow-sm font-medium"
+    >
+        Export PDF
+    </button>
+
+    <button 
+        onClick={onReset}
+        className="px-4 py-2 bg-white border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-50 transition-colors shadow-sm font-medium"
+    >
+        New Review
+    </button>
+
+</div>
             </div>
 
             {/* Main Grid */}
